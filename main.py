@@ -24,7 +24,7 @@ states = 17
 active_state = 0
 actions_array = [A, SHIFT, D]
 # Q = np.zeros([states, len(actions_array)])
-Q = 100 * np.random.rand(states, len(actions_array))
+Q = 1000 * np.random.rand(states, len(actions_array))
 
 # learning parameters
 lr = 0.5
@@ -32,18 +32,6 @@ y = 0.5
 
 # settings
 keypress_pause = 0.3
-
-
-def remove_comma(detected_score):
-    digits = []
-    digits.append(detected_score[:, 45:55])
-    digits.append(detected_score[:, 36:45])
-    digits.append(detected_score[:, 28:36])
-    digits.append(detected_score[:, 15:24])
-    digits.append(detected_score[:, 6:15])
-    detected_score = np.concatenate(
-        (digits[4], digits[3], digits[2], digits[1], digits[0]), axis=1)
-    return detected_score
 
 
 def control_car(chosen_action):
@@ -61,11 +49,10 @@ def control_car(chosen_action):
 
 def process_frame(img):
     #img = remove_comma(img)
-    # TODO apply more filters for easier detection
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     img = 255 - img
-    #ret, img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY)
+    #ret, img = cv2.threshold(img, 100, 255, cv2.THRESH_BINARY)
     return img
 
 
@@ -77,6 +64,7 @@ def print_action(chosen_aciton):
         print("^")
     elif chosen_aciton == 2:
         print("->")
+
 
 def run_q_algorithm():
     global active_state, highscore, episode
@@ -96,7 +84,7 @@ def run_q_algorithm():
         reset_race()
         episode += 1
         print("Episode " + str(episode))
-        np.savetxt("qmatrix" + str(episode) + ".out", Q, delimiter=',')
+        np.savetxt("qmatrix" + str(highscore) + ".out", Q, delimiter=',')
         active_state = 0
         highscore = 0
 
@@ -113,15 +101,12 @@ def update_reward():
     # detect number on processed image using tesseract ocr
     detected_number = tool.image_to_string(PIL.Image.fromarray(img), lang="eng", builder=builder)
     detected_number = "".join(i for i in detected_number if i in "0123456789")
-    # print(detected_number)
 
     # successfully detected a number, add to highscore and update state reward
     if detected_number.isnumeric():
-        detected_number = int(detected_number)
-        print(detected_number)
-        highscore = detected_number
-
-    print("Highscore:" + str(reward))
+        if int(detected_number) > highscore:
+            highscore = int(detected_number)
+            print("=== Highscore: " + str(highscore) + " ====")
 
     # Show detection frame for debugging
     cv2.imshow("frame", img)
@@ -143,22 +128,9 @@ def reset_race():
     ReleaseKey(ENTER)
     t.sleep(3 * keypress_pause)
 
-'''
-def looper():    
-    # i as interval in seconds    
-    threading.Timer(10, looper).start()   
-    # iterations per minute
-    print(iteration / 60)
-    global iteration
-    iteration = 0
-
-looper()
-'''
-
 
 while(True):
-    #run_q_algorithm()
-    update_reward()
+    run_q_algorithm()
     print("Iteration" + str(iteration))
     iteration += 1
     
