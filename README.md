@@ -1,7 +1,7 @@
 # drift-ai
 Teaching AI to drift in NFS Carbon using reinforcement learning
 
-# Installation
+## Installation
 *  Python dependencies: `pip install -r requierements.txt`
 *  Game: Need for Speed Carbon Collectors Edition
 *  Widescreen fix: [link](https://github.com/ThirteenAG/WidescreenFixesPack)
