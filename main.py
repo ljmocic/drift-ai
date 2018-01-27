@@ -23,6 +23,7 @@ episode = 0
 states = 17
 active_state = 0
 actions_array = [A, SHIFT, D]
+actions_history = []
 # Q = np.zeros([states, len(actions_array)])
 Q = 1000 * np.random.rand(states, len(actions_array))
 
@@ -67,8 +68,9 @@ def print_action(chosen_aciton):
 
 
 def run_q_algorithm():
-    global active_state, highscore, episode
+    global active_state, highscore, episode, actions_history
     chosen_action = np.argmax(Q[active_state, :])
+    actions_history.append(chosen_action)
     print("Value: ")
     print(Q[active_state, chosen_action])
     control_car(chosen_action)
@@ -86,6 +88,7 @@ def run_q_algorithm():
         print("Episode " + str(episode))
         np.savetxt("qmatrix" + str(highscore) + ".out", Q, delimiter=',')
         active_state = 0
+        actions_history = []
         highscore = 0
 
 
@@ -106,6 +109,11 @@ def update_reward():
     if detected_number.isnumeric():
         if int(detected_number) > highscore:
             highscore = int(detected_number)
+
+            # reward the path of taken actions
+            for i in range(len(actions_history)):
+                Q[i][actions_history[i]] += highscore
+                
             print("=== Highscore: " + str(highscore) + " ====")
 
     # Show detection frame for debugging
@@ -128,6 +136,8 @@ def reset_race():
     ReleaseKey(ENTER)
     t.sleep(3 * keypress_pause)
 
+# Q = np.loadtxt('qmatrix226157.out', delimiter=',')
+# print(Q)
 
 while(True):
     run_q_algorithm()
@@ -141,3 +151,4 @@ while(True):
         break
 
 cv2.destroyAllWindows()
+
