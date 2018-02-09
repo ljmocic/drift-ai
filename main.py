@@ -71,6 +71,8 @@ def run_q_algorithm():
     global active_state, highscore, episode, actions_history
     chosen_action = np.argmax(Q[active_state, :])
     actions_history.append(chosen_action)
+    print("State: ")
+    print(active_state)
     print("Value: ")
     print(Q[active_state, chosen_action])
     control_car(chosen_action)
@@ -87,6 +89,7 @@ def run_q_algorithm():
         episode += 1
         print("Episode " + str(episode))
         np.savetxt("qmatrix" + str(highscore) + ".out", Q, delimiter=',')
+        np.savetxt("actions_history" + str(highscore) + ".out", actions_history, delimiter=',')
         active_state = 0
         actions_history = []
         highscore = 0
@@ -96,7 +99,7 @@ def update_reward():
     global highscore
 
     # grab piece of screen for processing
-    img = np.array(ImageGrab.grab(bbox=(1000, 200, 1100, 222)))
+    img = np.array(ImageGrab.grab(bbox=(1000, 200, 1100, 220)))
 
     # preprocess frame for easier tesseract detection
     img = process_frame(img)
@@ -136,7 +139,7 @@ def reset_race():
     ReleaseKey(ENTER)
     t.sleep(3 * keypress_pause)
 
-# Q = np.loadtxt('qmatrix226157.out', delimiter=',')
+Q = np.loadtxt('qmatrix7006.out', delimiter=',')
 # print(Q)
 
 while(True):
